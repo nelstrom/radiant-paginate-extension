@@ -12,6 +12,8 @@ class PaginateExtension < Radiant::Extension
       PaginateExtension.const_set('UrlCache', Radiant::Config['paginate.url_route'])
     end
     Page.send(:include, PaginatePageExtensions)
+    # This makes the paginate <r:pages/> tag work in 0.6.9
+    Page.send :include, ActionView::Helpers::TagHelper
   end
   
   def deactivate
