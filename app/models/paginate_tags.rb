@@ -26,7 +26,7 @@ module PaginateTags
   end
   
   desc %Q{
-    Wrapper for pagination content. <r:paginate:each> and <r:paginate:pages> must be nested inside.
+    Wrapper for pagination content. @<r:paginate:each>@ and @<r:paginate:pages>@ must be nested inside.
     
     *Usage:*
     
@@ -35,8 +35,7 @@ module PaginateTags
       <r:each>...</r:each>
       ...
       <r:pages />
-    </r:paginate>
-    </code></pre>
+    </r:paginate></code></pre>
   }
   tag 'paginate' do |tag|
     tag.locals.previous_headers = {}
@@ -44,18 +43,18 @@ module PaginateTags
     parents = tag.locals.parent_ids || paginate_find_parent_pages(tag)
     options = paginate_find_options(tag)
     
-    paginated_children = Page.paginate(options.merge(:conditions => ["pages.parent_id in (?) AND virtual = ? and status_id = ?", parents,false,100], :order => 'published_at DESC'))
+    paginated_children = Page.paginate(options.merge(:conditions => ["pages.parent_id in (?) AND virtual = ? and status_id = ?", parents,false,100]))
     tag.locals.paginated_children = paginated_children
     
     tag.expand
   end
   
   desc %Q{
-    Renders nested content for each child of current page. Must be placed inside <r:paginate>
+    Renders nested content for each child of current page. Must be placed inside @<r:paginate>@
     
     *Usage:*
     
-    <pre><code><r:paginate>
+    <pre><code><r:paginate [per_page="10"] [order="asc|desc"] [by="attribute"]>
       <r:each>
         <r:link />
       </r:each>
@@ -105,9 +104,11 @@ module PaginateTags
     *Usage:*
     
     <pre><code><r:paginate>
-      <r:pages [id=""] [class="pagination"] [prev_label="&laquo; Previous"]
-      [next_label="Next &raquo;"] [inner_window="4"] [outer_window="1"]
-      [separator=" "] [page_links="true"] [container="true"]/>
+      <r:pages [id=""] [class="pagination"] 
+      [prev_label="&laquo; Previous"] 
+      [next_label="Next &raquo;"] 
+      [inner_window="4"] [outer_window="1"]
+      [separator=" "] [page_links="true"]/>
     </r:paginate>
     </code></pre>
   }
@@ -144,7 +145,8 @@ module PaginateTags
       
       options = {}
       
-      options[:page] = tag.attr['page'] || @request.path[/^#{Regexp.quote(tag.locals.page.url)}#{Regexp.quote(Radiant::Config['paginate.url_route'])}(\d+)\/?$/, 1]
+      options[:page] = tag.attr['page'] || @request.path[/^#{Regexp.quote(tag.locals.page.url)}#{Regexp.quote(PaginateExtension::UrlCache)}(\d+)\/?$/, 1]
+
       options[:per_page] = tag.attr['per_page'] || 10
       
       by = (attr[:by] || 'published_at').strip
