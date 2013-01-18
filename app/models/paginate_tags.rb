@@ -1,3 +1,6 @@
+#!/bin/env ruby
+# encoding: utf-8
+
 module PaginateTags
   include Radiant::Taggable
   include WillPaginate::ViewHelpers
